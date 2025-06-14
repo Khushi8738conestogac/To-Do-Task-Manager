@@ -17,7 +17,10 @@ This is a simple web-based application that helps users create, manage, and orga
 
 ## Team Members
 - Khushi (GitHub Setup, Task Management)
-- [Add other team members here]
+- Tejinderjit
+- Sourabh
+- Kartik
+- Masruf
 
 ## How to Use
-1. Clone the repo:  
+1. Clone the repository.  
