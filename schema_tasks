@@ -1,0 +1,22 @@
+
+| Field         | Type     | Required | Description                         |
+|---------------|----------|----------|-------------------------------------|
+| userId        | ObjectId | Yes      | Reference to User                   |
+| title         | String   | Yes      | Task name                           |
+| description   | String   | No       | Task details                        |
+| category      | String   | No       | Category e.g. Work, Personal        |
+| priority      | String   | No       | Low, Medium, High                   |
+| dueDate       | Date     | Yes      | When task is due                    |
+| reminderSet   | Boolean  | No       | Whether reminder is enabled         |
+| isCompleted   | Boolean  | No       | Task status                         |
+| createdAt     | Date     | Auto     | Auto created timestamp              |
+| updatedAt     | Date     | Auto     | Auto updated timestamp              |
+
+## Example:
+```group
+{
+  "title": "Submit Final Report",
+  "priority": "High",
+  "dueDate": "2025-07-31",
+  "isCompleted": false
+}
