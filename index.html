@@ -99,6 +99,71 @@
     });
   </script>
 </body>
+</html>      background-color: #2980b9;
+    }
+    .ai-response {
+      margin-top: 10px;
+      font-style: italic;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>To-Do Task Manager</h1>
+      <p>Stay organized and boost your productivity</p>
+    </header>
+
+    <!-- Existing UI components would be here -->
+
+    <!-- AI Assistant Section -->
+    <div class="ai-assistant">
+      <h3>AI Assistant</h3>
+      <input type="text" id="ai-query" placeholder="Ask for productivity tips, how to create a task, etc...">
+      <button id="ask-ai-btn">Ask</button>
+      <div class="ai-response" id="ai-response"></div>
+    </div>
+  </div>
+
+  <script>
+    // Define actual task list to simulate integration
+    const tasks = [
+      { title: 'Task 1', completed: true },
+      { title: 'Task 2', completed: false },
+      { title: 'Task 3', completed: false }
+    ];
+
+    // AI Assistant Logic
+    const askAiBtn = document.getElementById('ask-ai-btn');
+    const aiQuery = document.getElementById('ai-query');
+    const aiResponse = document.getElementById('ai-response');
+
+    askAiBtn.addEventListener('click', () => {
+      const query = aiQuery.value.toLowerCase().trim();
+      let response = "I'm not sure how to help with that.";
+
+      if (!query) {
+        response = "Please enter a question for the AI Assistant.";
+      } else if (query.includes("tips") || query.includes("productivity")) {
+        response = "Break tasks into smaller steps, prioritize them, and take regular breaks to maintain productivity.";
+      } else if (query.includes("suggest")) {
+        response = "Try adding a task like 'Plan my week' or 'Organize files' to get started.";
+      } else if (query.includes("summary") || query.includes("what have i done")) {
+        const done = tasks.filter(t => t.completed).length;
+        response = `You've completed ${done} out of ${tasks.length} tasks. Great work!`;
+      } else if (
+        query.includes("how to create a task") ||
+        query.includes("how to make a task") ||
+        query.includes("add a task")
+      ) {
+        response = "To create a task, click the '+ Add Task' button, enter the task details like title, category, priority, and due date, then click 'Create Task'.";
+      }
+
+      aiResponse.textContent = response;
+    });
+  </script>
+</body>
 </html>           dueDate: taskDueDate.value,
                 completed: false,
                 createdAt: new Date().toISOString()
