@@ -4,8 +4,261 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>To-Do Task Manager with AI</title>
-  <link rel="stylesheet" href="styles.css">
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      margin: 0;
+      color: #2c3e50;
+    }
+    header p {
+      color: #7f8c8d;
+      font-style: italic;
+    }
+    .search-bar, .filters, .stats {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: #ecf0f1;
+      border-radius: 8px;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .filters h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #2c3e50;
+    }
+    .filter-row {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    .filter-group {
+      flex-grow: 1;
+    }
+    .filter-group span {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .filter-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .filter-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .hide-completed input[type="checkbox"] {
+      margin-right: 5px;
+    }
+    .clear-btn {
+      padding: 8px 12px;
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .clear-btn:hover {
+      background-color: #c0392b;
+    }
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      text-align: center;
+    }
+    .stat-box h3 {
+      margin: 0 0 5px;
+      font-size: 16px;
+      color: #2c3e50;
+    }
+    .stat-box p {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+      color: #3498db;
+    }
+    .task-section h3 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 5px;
+    }
+    .empty-state {
+      text-align: center;
+      color: #7f8c8d;
+      padding: 20px;
+      border: 1px dashed #bdc3c7;
+      border-radius: 8px;
+    }
+    .task {
+      display: flex;
+      align-items: flex-start;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background-color: #fff;
+      transition: background-color 0.3s;
+    }
+    .task.completed {
+      background-color: #f9f9f9;
+    }
+    .task.completed .task-title, .task.completed .task-desc {
+      text-decoration: line-through;
+      color: #95a5a6;
+    }
+    .task input[type="checkbox"] {
+      margin-top: 5px;
+      margin-right: 15px;
+      min-width: 20px;
+      min-height: 20px;
+      cursor: pointer;
+    }
+    .task label {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+    .task-title {
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .task-desc {
+      color: #7f8c8d;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+    .task-priority {
+      font-size: 12px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      color: white;
+      align-self: flex-start;
+      margin-top: 8px;
+    }
+    .task-priority.high { background-color: #e74c3c; }
+    .task-priority.medium { background-color: #f1c40f; }
+    .task-priority.low { background-color: #2ecc71; }
+
+    .add-btn {
+      width: 100%;
+      padding: 15px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    .add-btn:hover {
+      background-color: #27ae60;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .add-task-modal {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    .add-task-modal h2 {
+      margin-top: 0;
+      text-align: center;
+      color: #2c3e50;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+    .form-row .form-group {
+      flex-grow: 1;
+    }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-actions button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .cancel-btn {
+      background-color: #95a5a6;
+      color: white;
+    }
+    .cancel-btn:hover {
+      background-color: #7f8c8d;
+    }
+    .create-btn {
+      background-color: #3498db;
+      color: white;
+    }
+    .create-btn:hover {
+      background-color: #2980b9;
+    }
+
     .ai-assistant {
       margin-top: 20px;
       padding: 15px;
@@ -105,7 +358,6 @@
 
     <button class="add-btn" id="add-task-btn">+ Add Task</button>
 
-    <!-- AI Assistant Section -->
     <div class="ai-assistant">
       <h3>AI Assistant</h3>
       <input type="text" id="ai-query" placeholder="Ask for productivity tips, how to create a task, etc...">
@@ -162,7 +414,6 @@
   <script>
     let tasks = [];
     const taskList = document.getElementById('task-list');
-    const emptyState = document.querySelector('.empty-state');
     const addTaskBtn = document.getElementById('add-task-btn');
     const taskModal = document.getElementById('task-modal');
     const cancelTaskBtn = document.getElementById('cancel-task-btn');
@@ -183,8 +434,8 @@
     });
 
     createTaskBtn.addEventListener('click', () => {
-      if (!taskTitle.value.trim()) {
-        alert('Task title is required');
+      if (!taskTitle.value.trim() || !taskDueDate.value) {
+        alert('Task title and Due Date are required');
         return;
       }
 
@@ -207,44 +458,65 @@
     });
 
     function renderTasks() {
-      if (tasks.length === 0) {
-        taskList.innerHTML = `
-          <h3>Pending Tasks (<span id="pending-count">0</span>)</h3>
+      const pendingTasks = tasks.filter(task => !task.completed);
+      const completedTasks = tasks.filter(task => task.completed);
+      
+      const pendingCount = pendingTasks.length;
+      let tasksHTML = `<h3>Pending Tasks (<span id="pending-count">${pendingCount}</span>)</h3>`;
+
+      if (pendingTasks.length === 0) {
+        tasksHTML += `
           <div class="empty-state">
-            <p>No tasks found</p>
+            <p>No pending tasks found</p>
             <p>Add your first task to get started!</p>
           </div>
         `;
-        return;
+      } else {
+        pendingTasks.forEach(task => {
+          tasksHTML += createTaskCard(task);
+        });
       }
 
-      let pendingCount = 0;
-      let tasksHTML = '<h3>Pending Tasks (<span id="pending-count">0</span>)</h3>';
-
-      tasks.forEach(task => {
-        if (!task.completed) pendingCount++;
-        tasksHTML += `
-          <div class="task ${task.completed ? 'completed' : ''}" data-id="${task.id}">
-            <input type="checkbox" ${task.completed ? 'checked' : ''}>
-            <label>
-              <span class="task-title">${task.title}</span>
-              <span class="task-desc">${task.description}</span>
-              <span class="task-priority ${task.priority.toLowerCase()}">${task.priority} Priority</span>
-            </label>
-          </div>
-        `;
+      tasksHTML += `<h3>Completed Tasks (${completedTasks.length})</h3>`;
+      completedTasks.forEach(task => {
+        tasksHTML += createTaskCard(task);
       });
 
-      document.getElementById('pending-count').textContent = pendingCount;
       taskList.innerHTML = tasksHTML;
+      
+      // Add event listeners to newly rendered checkboxes
+      document.querySelectorAll('.task input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          const taskId = e.target.closest('.task').dataset.id;
+          const task = tasks.find(t => t.id == taskId);
+          if (task) {
+            task.completed = e.target.checked;
+            renderTasks();
+            updateStats();
+          }
+        });
+      });
+    }
+
+    function createTaskCard(task) {
+      return `
+        <div class="task ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+          <input type="checkbox" ${task.completed ? 'checked' : ''}>
+          <label>
+            <span class="task-title">${task.title}</span>
+            <span class="task-desc">${task.description} - Due: ${task.dueDate}</span>
+            <span class="task-priority ${task.priority.toLowerCase()}">${task.priority} Priority</span>
+          </label>
+        </div>
+      `;
     }
 
     function updateStats() {
       const totalTasks = tasks.length;
-      const pendingTasks = tasks.filter(task => !task.completed).length;
+      const pendingTasksCount = tasks.filter(task => !task.completed).length;
 
       document.getElementById('total-tasks').textContent = totalTasks;
-      document.getElementById('pending-tasks').textContent = pendingTasks;
+      document.getElementById('pending-tasks').textContent = pendingTasksCount;
     }
 
     function resetForm() {
@@ -260,25 +532,53 @@
     const aiQuery = document.getElementById('ai-query');
     const aiResponse = document.getElementById('ai-response');
 
+    const assistantResponses = {
+      greetings: ["hello", "hi", "hey"],
+      productivityTips: ["tips", "productivity", "stay focused", "get organized"],
+      howToAdd: ["how to create a task", "how to make a task", "add a task", "new task"],
+      taskSummary: ["summary", "what have i done", "completed tasks", "my progress"],
+      suggestions: ["suggest", "what should i do", "task ideas"],
+      default: "I'm not sure how to help with that. Try asking for 'productivity tips', 'how to add a task', or 'a summary of my tasks'."
+    };
+
     askAiBtn.addEventListener('click', () => {
       const query = aiQuery.value.toLowerCase().trim();
-      let response = "I'm not sure how to help with that.";
+      let response = "";
 
       if (!query) {
-        response = "Please enter a question for the AI Assistant.";
-      } else if (query.includes("tips") || query.includes("productivity")) {
-        response = "Break tasks into smaller steps, prioritize them, and take regular breaks to maintain productivity.";
-      } else if (query.includes("suggest")) {
-        response = "Try adding a task like 'Plan my week' or 'Organize files' to get started.";
-      } else if (query.includes("summary") || query.includes("what have i done")) {
-        const done = tasks.filter(t => t.completed).length;
-        response = `You've completed ${done} out of ${tasks.length} tasks. Great work!`;
-      } else if (
-        query.includes("how to create a task") ||
-        query.includes("how to make a task") ||
-        query.includes("add a task")
-      ) {
-        response = "To create a task, click the '+ Add Task' button, enter the task details like title, category, priority, and due date, then click 'Create Task'.";
+        aiResponse.textContent = "Please enter a question for the AI Assistant.";
+        return;
+      }
+
+      // Check for greetings
+      if (assistantResponses.greetings.some(keyword => query.includes(keyword))) {
+        response = "Hello there! How can I help you today?";
+      } 
+      // Check for productivity tips
+      else if (assistantResponses.productivityTips.some(keyword => query.includes(keyword))) {
+        response = "To boost productivity, try using the Pomodoro Technique: work for 25 minutes, then take a 5-minute break. Also, be sure to break large tasks into smaller, manageable steps.";
+      } 
+      // Check for how to add a task
+      else if (assistantResponses.howToAdd.some(keyword => query.includes(keyword))) {
+        response = "To create a new task, simply click the '+ Add Task' button at the bottom of the screen, fill out the details in the pop-up window, and click 'Create Task'.";
+      } 
+      // Check for task summary
+      else if (assistantResponses.taskSummary.some(keyword => query.includes(keyword))) {
+        const totalTasks = tasks.length;
+        const completedTasks = tasks.filter(t => t.completed).length;
+        if (totalTasks === 0) {
+          response = "You don't have any tasks yet. Try adding one to get started!";
+        } else {
+          response = `You have completed ${completedTasks} out of ${totalTasks} total tasks. Keep up the great work!`;
+        }
+      } 
+      // Check for suggestions
+      else if (assistantResponses.suggestions.some(keyword => query.includes(keyword))) {
+        response = "How about a task to help you stay on track? Try adding 'Review my week's goals' or 'Plan tomorrow's top 3 priorities'.";
+      }
+      // If no keywords match, use the default response
+      else {
+        response = assistantResponses.default;
       }
 
       aiResponse.textContent = response;
@@ -289,4 +589,6 @@
   </script>
 </body>
 </html>
+
+
 
