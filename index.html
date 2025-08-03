@@ -50,7 +50,60 @@
       <p>Stay organized and boost your productivity</p>
     </header>
 
-    <!-- Existing UI components would be here -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search tasks...">
+    </div>
+
+    <div class="filters">
+      <h2>Filters</h2>
+      <div class="filter-row">
+        <div class="filter-group">
+          <span>Category</span>
+          <select>
+            <option>All Categories</option>
+            <option>Work</option>
+            <option>Personal</option>
+            <option>Health</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <span>Priority</span>
+          <select>
+            <option>All Priorities</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-actions">
+        <label class="hide-completed">
+          <input type="checkbox"> Hide Completed
+        </label>
+        <button class="clear-btn">Clear Filters</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat-box">
+        <h3>Total Tasks</h3>
+        <p id="total-tasks">0</p>
+      </div>
+      <div class="stat-box">
+        <h3>Pending</h3>
+        <p id="pending-tasks">0</p>
+      </div>
+    </div>
+
+    <div class="task-section" id="task-list">
+      <h3>Pending Tasks (<span id="pending-count">0</span>)</h3>
+      <div class="empty-state">
+        <p>No tasks found</p>
+        <p>Add your first task to get started!</p>
+      </div>
+    </div>
+
+    <button class="add-btn" id="add-task-btn">+ Add Task</button>
 
     <!-- AI Assistant Section -->
     <div class="ai-assistant">
@@ -61,13 +114,146 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="task-modal">
+    <div class="add-task-modal">
+      <h2>Create New Task</h2>
+
+      <div class="form-group">
+        <label for="task-title">Task Title *</label>
+        <input type="text" id="task-title" placeholder="Enter task title...">
+      </div>
+
+      <div class="form-group">
+        <label for="task-description">Description</label>
+        <textarea id="task-description" placeholder="Add more details about your task..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="task-category">Category</label>
+          <select id="task-category">
+            <option>Work</option>
+            <option>Personal</option>
+            <option>Health</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="task-priority">Priority</label>
+          <select id="task-priority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="task-due-date">Due Date *</label>
+        <input type="date" id="task-due-date">
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" id="cancel-task-btn">Cancel</button>
+        <button class="create-btn" id="create-task-btn">Create Task</button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Define actual task list to simulate integration
-    const tasks = [
-      { title: 'Task 1', completed: true },
-      { title: 'Task 2', completed: false },
-      { title: 'Task 3', completed: false }
-    ];
+    let tasks = [];
+    const taskList = document.getElementById('task-list');
+    const emptyState = document.querySelector('.empty-state');
+    const addTaskBtn = document.getElementById('add-task-btn');
+    const taskModal = document.getElementById('task-modal');
+    const cancelTaskBtn = document.getElementById('cancel-task-btn');
+    const createTaskBtn = document.getElementById('create-task-btn');
+    const taskTitle = document.getElementById('task-title');
+    const taskDescription = document.getElementById('task-description');
+    const taskCategory = document.getElementById('task-category');
+    const taskPriority = document.getElementById('task-priority');
+    const taskDueDate = document.getElementById('task-due-date');
+
+    addTaskBtn.addEventListener('click', () => {
+      taskModal.style.display = 'flex';
+    });
+
+    cancelTaskBtn.addEventListener('click', () => {
+      taskModal.style.display = 'none';
+      resetForm();
+    });
+
+    createTaskBtn.addEventListener('click', () => {
+      if (!taskTitle.value.trim()) {
+        alert('Task title is required');
+        return;
+      }
+
+      const newTask = {
+        id: Date.now(),
+        title: taskTitle.value.trim(),
+        description: taskDescription.value.trim(),
+        category: taskCategory.value,
+        priority: taskPriority.value,
+        dueDate: taskDueDate.value,
+        completed: false,
+        createdAt: new Date().toISOString()
+      };
+
+      tasks.push(newTask);
+      renderTasks();
+      updateStats();
+      taskModal.style.display = 'none';
+      resetForm();
+    });
+
+    function renderTasks() {
+      if (tasks.length === 0) {
+        taskList.innerHTML = `
+          <h3>Pending Tasks (<span id="pending-count">0</span>)</h3>
+          <div class="empty-state">
+            <p>No tasks found</p>
+            <p>Add your first task to get started!</p>
+          </div>
+        `;
+        return;
+      }
+
+      let pendingCount = 0;
+      let tasksHTML = '<h3>Pending Tasks (<span id="pending-count">0</span>)</h3>';
+
+      tasks.forEach(task => {
+        if (!task.completed) pendingCount++;
+        tasksHTML += `
+          <div class="task ${task.completed ? 'completed' : ''}" data-id="${task.id}">
+            <input type="checkbox" ${task.completed ? 'checked' : ''}>
+            <label>
+              <span class="task-title">${task.title}</span>
+              <span class="task-desc">${task.description}</span>
+              <span class="task-priority ${task.priority.toLowerCase()}">${task.priority} Priority</span>
+            </label>
+          </div>
+        `;
+      });
+
+      document.getElementById('pending-count').textContent = pendingCount;
+      taskList.innerHTML = tasksHTML;
+    }
+
+    function updateStats() {
+      const totalTasks = tasks.length;
+      const pendingTasks = tasks.filter(task => !task.completed).length;
+
+      document.getElementById('total-tasks').textContent = totalTasks;
+      document.getElementById('pending-tasks').textContent = pendingTasks;
+    }
+
+    function resetForm() {
+      taskTitle.value = '';
+      taskDescription.value = '';
+      taskCategory.value = 'Work';
+      taskPriority.value = 'Medium';
+      taskDueDate.value = '';
+    }
 
     // AI Assistant Logic
     const askAiBtn = document.getElementById('ask-ai-btn');
@@ -97,6 +283,10 @@
 
       aiResponse.textContent = response;
     });
+
+    renderTasks();
+    updateStats();
   </script>
 </body>
 </html>
+
